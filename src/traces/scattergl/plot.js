@@ -150,12 +150,15 @@ var exports = module.exports = function plot(gd, subplot, cdata) {
                 var fillData = [];
                 if(trace._ownfill) fillData.push(i);
                 if(trace._nexttrace) fillData.push(i + 1);
+                // For a fill of tonexty, we need to check for the previous trace instead of the next one.
+                if (trace.fill == 'tonexty' && trace._prevtrace) {
+                    fillData.push(i);
+                }
                 if(fillData.length) scene.fillOrder[i] = fillData;
 
                 var pos = [];
                 var srcPos = (lineOptions && lineOptions.positions) || stash.positions;
                 var firstptdef, lastptdef;
-
                 if(trace.fill === 'tozeroy') {
                     firstptdef = 0;
                     while(firstptdef < srcPos.length && isNaN(srcPos[firstptdef + 1])) {
@@ -207,23 +210,23 @@ var exports = module.exports = function plot(gd, subplot, cdata) {
                         pos.push(srcPos[last], srcPos[last + 1]);
                     }
                 } else {
-                    var nextTrace = trace._nexttrace;
+                    var prevTrace = trace._prevtrace;
 
-                    if(nextTrace) {
-                        var nextOptions = scene.lineOptions[i + 1];
+                    if(prevTrace) {
+                        var prevOptions = scene.lineOptions[i - 1];
 
-                        if(nextOptions) {
-                            var nextPos = nextOptions.positions;
+                        if(prevOptions) {
+                            var prevPos = prevOptions.positions;
                             if(trace.fill === 'tonexty') {
                                 pos = srcPos.slice();
 
-                                for(i = Math.floor(nextPos.length / 2); i--;) {
-                                    var xx = nextPos[i * 2];
-                                    var yy = nextPos[i * 2 + 1];
+                                for(i = Math.floor(prevPos.length / 2); i--;) {
+                                    var xx = prevPos[i * 2];
+                                    var yy = prevPos[i * 2 + 1];
                                     if(isNaN(xx) || isNaN(yy)) continue;
                                     pos.push(xx, yy);
                                 }
-                                fillOptions.fill = nextTrace.fillcolor;
+                                fillOptions.fill = trace.fillcolor;
                             }
                         }
                     }
@@ -253,7 +256,6 @@ var exports = module.exports = function plot(gd, subplot, cdata) {
 
                 return fillOptions;
             });
-
             scene.fill2d.update(scene.fillOptions);
         }
     }
