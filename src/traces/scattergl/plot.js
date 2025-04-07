@@ -159,6 +159,7 @@ var exports = module.exports = function plot(gd, subplot, cdata) {
                 var pos = [];
                 var srcPos = (lineOptions && lineOptions.positions) || stash.positions;
                 var firstptdef, lastptdef;
+
                 if(trace.fill === 'tozeroy') {
                     firstptdef = 0;
                     while(firstptdef < srcPos.length && isNaN(srcPos[firstptdef + 1])) {
@@ -256,6 +257,7 @@ var exports = module.exports = function plot(gd, subplot, cdata) {
 
                 return fillOptions;
             });
+
             scene.fill2d.update(scene.fillOptions);
         }
     }
